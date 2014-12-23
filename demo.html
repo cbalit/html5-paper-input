@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>html5-paper-input Demo</title>
+
+  <script src="../webcomponentsjs/webcomponents.js"></script>
+  <link rel="import" href="html5-paper-input.html">
+  <style>
+    .container{
+      height: auto;
+      padding: 20px;
+    }
+
+    html5-paper-input{
+      width: 250px;
+    }
+  </style>
+</head>
+<body unresolved>
+
+
+  <div class="container" layout vertical>
+    <html5-paper-input label="Simple input" floatinglabel></html5-paper-input>
+    <html5-paper-input label="Password field" type="password" floatinglabel></html5-paper-input>
+    <html5-paper-input label="Required field" required floatinglabel></html5-paper-input>
+    <html5-paper-input label="maxlength" maxlength="10" floatinglabel></html5-paper-input>
+    <html5-paper-input label="min and max" type="number" min="5" max="10" floatinglabel></html5-paper-input>
+    <html5-paper-input label="pattern:3 digits"  pattern="[0-9]{3}" floatinglabel></html5-paper-input>
+    <html5-paper-input label="required and pattern" required  pattern="[0-9]{3}" floatinglabel></html5-paper-input>
+    <html5-paper-input label="required on change validation" required commitvalidation floatinglabel></html5-paper-input>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>frf-login</title>
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../html5-paper-input.html">
+
+</head>
+<body>
+
+<script>
+  describe('Input Test Suite', function () {
+    var input;
+
+    beforeEach(function () {
+      input = new Html5PaperInput();
+    });
+
+
+    afterEach(function () {
+      input = null;
+    });
+
+
+    describe("Number Validation", function () {
+
+      function setValue(value){
+        input.setAttribute('value', value);
+      }
+
+      function setInvalid(){
+        input.valid=false;
+        input.invalid=true;
+      }
+
+      function setValid(){
+        input.valid=true;
+        input.invalid=false;
+      }
+
+      function isInvalid(){
+        expect(input.valid).to.be.false;
+        expect(input.invalid).to.be.true;
+      }
+
+      function isValid(){
+        expect(input.valid).to.be.true;
+        expect(input.invalid).to.be.false;
+      }
+
+
+      it("should be valid if no type number is set", function () {
+        setInvalid();
+        setValue('');
+        input.validate();
+        isValid();
+      });
+
+      it("should call validateMinMax if type is number", function () {
+        sinon.spy(input,'validateMinMax');
+        input.setAttribute('type', 'number');
+        input.validate();
+        expect(input.validateMinMax.called).to.be.true;
+      });
+
+      it("should not call validateMinMax if type is not number", function () {
+        sinon.spy(input,'validateMinMax');
+        input.setAttribute('type', 'text');
+        input.validate();
+        expect(input.validateMinMax.called).to.be.false;
+      });
+
+
+      it("should be valid if type number is set and no value", function (done) {
+        setInvalid();
+        input.setAttribute('type', 'number');
+        setValue('');
+        flush(function () {
+          input.validate();
+          isValid();
+          done();
+        });
+      });
+
+      it("should be valid if type number is set and value is a number", function (done) {
+        setInvalid();
+        input.setAttribute('type', 'number');
+        setValue('5');
+        flush(function () {
+          input.validate();
+          isValid();
+          done();
+        });
+      });
+
+      it("should be valid if type number is set and value is between min and max", function (done) {
+        setInvalid();
+        input.setAttribute('type', 'number');
+        input.setAttribute('min', '5');
+        input.setAttribute('max', '15');
+        setValue('10');
+        flush(function () {
+          input.validate();
+          isValid();
+          done();
+        });
+      });
+
+      it("should be invalid if type number is set and value is over max", function (done) {
+        setValid();
+        input.setAttribute('type', 'number');
+        input.setAttribute('max', '10');
+        setValue('11');
+        flush(function () {
+          input.validate();
+          isInvalid();
+          done();
+        });
+      });
+
+      it("should be invalid if type number is set and value is lower then min", function (done) {
+        setValid();
+        input.setAttribute('type', 'number');
+        input.setAttribute('min', '5');
+        setValue('4');
+        flush(function () {
+          input.validate();
+          isInvalid();
+          done();
+        });
+      });
+
+
+      it('should fire a input-invalid event when validity became false', function (done) {
+        setValid();
+        input.addEventListener('input-invalid', function (event) {
+          done();
+        });
+        input.setAttribute('type', 'number');
+        input.setAttribute('min', '5');
+        setValue('4');
+        flush(function () {
+          input.validate();
+        });
+      });
+
+      it('should fire a input-valid event when validity became false', function (done) {
+        setInvalid();
+        input.addEventListener('input-valid', function (event) {
+          done();
+        });
+        input.setAttribute('type', 'number');
+        input.setAttribute('min', '5');
+        setValue('6');
+        flush(function () {
+        });
+      });
+
+    });
+  });
+</script>
+
+</body>
+</html>

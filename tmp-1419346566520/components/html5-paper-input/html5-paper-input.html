@@ -1,0 +1,302 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../core-input/core-input.html">
+<link rel="import" href="../paper-input/paper-input-decorator.html">
+
+<!--
+Base on paper-input with HTML5 validation support
+
+##### Example
+
+    <html5-paper-input required  pattern="[0-9]{3}" floatinglabel></html5-paper-input>
+
+@element html5-paper-input
+@blurb Base on paper-input with HTML5 validation support
+@status alpha
+@homepage http://cbalit.github.io/html5-paper-input
+-->
+<polymer-element name="html5-paper-input" attributes="type label required maxlength min max pattern commitvalidation" constructor="Html5PaperInput" layout horizontal center>
+  <template>
+    <style>
+      .required{
+        color: red;
+        font-weight: bold;
+      }
+    </style>
+    <paper-input-decorator flex id="decorator" label="{{label}}" floatingLabel="{{floatingLabel}}" value="{{value}}" disabled?="{{disabled}}" error="{{error}}">
+      <input id="input" is="core-input" type="{{type}}"
+             value="{{value}}" committedValue="{{committedValue}}"
+             on-change="{{changeAction}}" disabled?="{{disabled}}"
+             required?="{{required}}">
+    </paper-input-decorator>
+  </template>
+
+  <script>
+
+    Polymer({
+      publish: {
+        /**
+         * The label for this input. It normally appears as grey text inside
+         * the text input and disappears once the user enters text.
+         *
+         * @attribute label
+         * @type string
+         * @default ''
+         */
+        label: '',
+
+        /**
+         * If true, the label will "float" above the text input once the
+         * user enters text instead of disappearing.
+         *
+         * @attribute floatingLabel
+         * @type boolean
+         * @default false
+         */
+        floatingLabel: false,
+
+        /**
+         * Set to true to style the element as disabled.
+         *
+         * @attribute disabled
+         * @type boolean
+         * @default false
+         */
+        disabled: {value: false, reflect: true},
+
+        value: '',
+
+        committedValue: '',
+
+        /**
+         * Set the type of the input. (could be text,password,mail,url,number)
+         *
+         * @attribute type
+         * @type string
+         * @default text
+         */
+        type:'text',
+        /**
+         * Set to true to style the required state
+         *
+         * @attribute required
+         * @type boolean
+         * @default false
+         */
+        required:false,
+        /**
+         * Set the maxlength of the input
+         *
+         * @attribute maxlength
+         * @type number
+         * @default 0
+         */
+        maxlength:0,
+        /**
+         * Set the min value of the input
+         *
+         * @attribute min
+         * @type number
+         * @default 0
+         */
+        min:0,
+        /**
+         * Set the max value of the input
+         *
+         * @attribute max
+         * @type number
+         * @default 0
+         */
+        max:0,
+        /**
+         * Set the pattern of the input
+         *
+         * @attribute pattern
+         * @type string
+         * @default null
+         */
+        pattern:null,
+        /**
+         * Set to true to validate on commit instead of change (ie. when the user
+         * hits the "enter" key or blurs the input after changing the value)
+         *
+         * @attribute commitvalidation
+         * @type boolean
+         * @default false
+         */
+        commitvalidation:false
+      },
+      valid:true,
+      invalid:false,
+      tooLong:false,
+      messages:{
+        valueMissing:'Required field',
+        customError:'Custom error',
+        patternMismatch:'Pattern mismatch error',
+        typeMismatch:'Type mismatch error',
+        rangeOverflow:'Overflow error',
+        rangeUnderflow:'Underflow error',
+        tooLong:'Value too long',
+        default:'An error occured'
+      },
+      error:"",
+      observe:{
+        type:'validateAttributes',
+        pattern:'validateAttributes',
+        min:'validateAttributes',
+        max:'validateAttributes',
+        maxlength:'validateAttributes'
+      },
+      /**
+       * The `setMessage` method allow to set custom messages error
+       *
+       * @method setMessage
+       * @param {Object} messages the custom messages map
+       * @param {string} messages.valueMissing: message for require error
+       * @param {string} messages.patternMismatch: message for pattern error
+       * @param {string} messages.rangeUnderflow: message for min error
+       * @param {string} messages.rangeOverflow: message for max error
+       * @param {string} messages.tooLong: message for maxlength error
+       * @param {string} messages.default: message for default error
+       */
+      setMessage: function(messages) {
+        if(messages){
+          if(messages.valueMissing){
+            this.messages.valueMissing=messages.valueMissing;
+          }
+          if(messages.patternMismatch){
+            this.messages.patternMismatch=messages.patternMismatch;
+          }
+          if(messages.rangeUnderflow){
+            this.messages.rangeUnderflow=messages.rangeUnderflow;
+          }
+          if(messages.rangeOverflow){
+            this.messages.rangeOverflow=messages.rangeOverflow;
+          }
+          if(messages.tooLong){
+            this.messages.tooLong=messages.tooLong;
+          }
+          if(messages.typeMismatch){
+            this.messages.typeMismatch=messages.typeMismatch;
+          }
+          if(messages.default){
+            this.messages.default=messages.default;
+          }
+        }
+      },
+      isAuthorizedType: function() {
+        var okTypes=['text','number','password','mail','url'];
+        return (okTypes.indexOf(this.type)!=-1);
+      },
+      validateAttributes: function() {
+        //prevent from unwanted types
+        if(this.type != 'text' && !this.isAuthorizedType()) {
+          this.type = 'text'
+        }
+        //Set the input attributes according to our element attribute
+        //No databinding because we don't want them if there are not set
+        if(this.min){
+          this.$.input.setAttribute('min',this.min);
+        }
+        if(this.max){
+          this.$.input.setAttribute('max',this.max);
+        }
+        if(this.maxlength){
+          this.$.input.setAttribute('maxlength',this.maxlength);
+        }
+        if(this.pattern){
+          this.$.input.setAttribute('pattern',this.pattern);
+        }
+      },
+      ready: function() {
+
+      },
+      /**
+       * The `validate` method allow to check the value according to HTML5 validation attributes
+       *
+       * @method validate
+       */
+      validate: function() {
+        if(this.maxlength>0){
+          this.validateLength();
+        }
+        if(this.type=='number'){
+          this.validateMinMax();
+        }
+        this.setValidity();
+        this.setErrorMessage();
+      },
+      validateLength: function() {
+        if(this.maxlength>0 && this.value.length>this.maxlength){
+          this.value=this.value.substr(0,this.maxlength);
+          //Force validity (using custom error)
+          this.$.input.setCustomValidity(this.messages.tooLong);
+        }
+      },
+      validateMinMax: function() {
+       //TODO check badInput error
+      },
+      setValidity: function() {
+        this.valid=this.$.input.validity.valid;
+        this.$.decorator.isInvalid = this.invalid= !this.valid;
+        if(this.valid){
+          this.fire('input-valid');
+        }
+        else{
+          this.fire('input-invalid');
+        }
+      },
+      setErrorMessage: function() {
+        var decorator = this.$.decorator;
+        var input = this.$.input;
+        var errMsg="";
+        if(this.invalid){
+          switch (true){
+            case input.validity.valueMissing:
+              errMsg=this.messages.valueMissing;
+              break;
+            case input.validity.customError:
+              errMsg=this.messages.tooLong;
+              break;
+            case input.validity.rangeUnderflow:
+              errMsg=this.messages.rangeUnderflow;
+              break;
+            case input.validity.rangeOverflow:
+              errMsg=this.messages.rangeOverflow;
+              break;
+            case input.validity.patternMismatch:
+              errMsg=this.messages.patternMismatch;
+              break;
+            case input.validity.typeMismatch:
+              errMsg=this.messages.typeMismatch;
+              break;
+            default :
+              errMsg=this.messages.default;
+          }
+        }
+        this.error=errMsg;
+      },
+      valueChanged: function() {
+        this.$.decorator.updateLabelVisibility(this.value);
+        if(!this.commitvalidation){
+          this.validate();
+        }
+      },
+      labelChanged: function() {
+        if(this.required && this.label[this.label.length-1]!='*'){
+          this.label+=" *";
+        }
+      },
+      changeAction: function(e) {
+        if (!window.ShadowDOMPolyfill) {
+          // re-fire event that does not bubble across shadow roots
+          this.fire('change', null, this);
+        }
+        if(this.commitvalidation){
+          this.validate();
+        }
+      }
+    });
+
+  </script>
+
+</polymer-element>
