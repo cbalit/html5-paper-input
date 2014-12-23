@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>frf-login</title>
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../html5-paper-input.html">
+
+</head>
+<body>
+
+<script>
+  describe('Input Test Suite', function () {
+    var input;
+
+    beforeEach(function () {
+      input = new Html5PaperInput();
+    });
+
+
+    afterEach(function () {
+      input = null;
+    });
+
+    describe("Initialisation", function () {
+
+      it("should have text type by default", function () {
+        expect(input.type).to.equal('text');
+      });
+
+      it("should keep text type if we set an invalid one (ie:not text,password,mail,url,number)", function (done) {
+        input.setAttribute('type','date');
+        flush(function () {
+          expect(input.type).to.equal('text');
+          done();
+        })
+      });
+
+      it("should have setting type", function () {
+        input.setAttribute('type', 'password');
+        expect(input.type).to.equal('password');
+      });
+
+      it("should have no value by default", function () {
+        expect(input.value).to.be.empty;
+      });
+
+      it("should have setting value", function () {
+        input.setAttribute('value', 'myValue');
+        expect(input.value).to.equal('myValue');
+      });
+
+      it("should have no required by default", function () {
+        expect(input.required).to.be.false;
+      });
+
+      it("should have setting required", function () {
+        input.setAttribute('required', '');
+        expect(input.required).to.be.true;
+      });
+
+      it("should have no label by default", function () {
+        expect(input.label).to.be.empty;
+      });
+
+      it("should have setting label", function () {
+        input.setAttribute('label', 'myLabel');
+        expect(input.label).to.equal('myLabel');
+      });
+
+      it("should validate when value changed", function (done) {
+        sinon.stub(input, 'validate');
+        input.setAttribute('value', "myValue");
+        flush(function () {
+          expect(input.validate.called).to.be.true;
+          done();
+        })
+      });
+    });
+
+  });
+</script>
+
+</body>
+</html>

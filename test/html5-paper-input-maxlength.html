@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>frf-login</title>
+  <script src="../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../html5-paper-input.html">
+
+</head>
+<body>
+
+<script>
+  describe('Input Test Suite', function () {
+    var input;
+
+    beforeEach(function () {
+      input = new Html5PaperInput();
+    });
+
+
+    afterEach(function () {
+      input = null;
+    });
+
+
+    describe("Maxlength Validation", function () {
+
+      function setValue(value){
+        input.setAttribute('value', value);
+      }
+
+      function setInvalid(){
+        input.valid=false;
+        input.invalid=true;
+      }
+
+      function setValid(){
+        input.valid=true;
+        input.invalid=false;
+      }
+
+      function isInvalid(){
+        expect(input.valid).to.be.false;
+        expect(input.invalid).to.be.true;
+      }
+
+      function isValid(){
+        expect(input.valid).to.be.true;
+        expect(input.invalid).to.be.false;
+      }
+
+
+      it("should be valid if no maxlength set", function () {
+        setInvalid();
+        setValue('');
+        input.validate();
+        isValid();
+      });
+
+      it("should be valid if maxlength set and no value", function (done) {
+        setInvalid();
+        input.setAttribute('maxlength', '10');
+        setValue('');
+        flush(function () {
+          input.validate();
+          isValid();
+          done();
+        });
+      });
+
+      it("should call validateLength if maxLength is set", function () {
+        sinon.spy(input,'validateLength');
+        input.setAttribute('maxlength', '10');
+        input.validate();
+        expect(input.validateLength.called).to.be.true;
+      });
+
+      it("should not call validateLength if maxLength is not set", function () {
+        sinon.spy(input,'validateLength');
+        input.validate();
+        expect(input.validateLength.called).to.be.false;
+      });
+
+      it("should be invalid if maxlength set and value is too long", function (done) {
+        setValid();
+        input.setAttribute('maxlength', '10');
+        setValue('12345678910000000000000000');
+        flush(function () {
+          input.validate();
+          isInvalid();
+          done();
+        });
+      });
+
+      it("should trim the value if it is too long", function (done) {
+        input.setAttribute('maxlength', '10');
+        setValue('12345678910000000000000000');
+        flush(function () {
+          input.validate();
+          expect(input.value).to.equal('1234567891');
+          done();
+        });
+      });
+
+
+      it("should not trim the value if it is ok", function (done) {
+        input.setAttribute('maxlength', '10');
+        setValue('123456789');
+        flush(function () {
+          input.validate();
+          expect(input.value).to.equal('123456789');
+          done();
+        });
+      });
+
+    });
+  });
+</script>
+
+</body>
+</html>
