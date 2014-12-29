@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../core-input/core-input.html">
-<link rel="import" href="../paper-input/paper-input-decorator.html">
+<link rel="import" href="../paper-input/paper-input.html">
 
 <!--
 Base on paper-input with HTML5 validation support
@@ -14,61 +13,15 @@ Base on paper-input with HTML5 validation support
 @status alpha
 @homepage http://cbalit.github.io/html5-paper-input
 -->
-<polymer-element name="html5-paper-input" attributes="type label required maxlength min max pattern commitvalidation"
-                 constructor="Html5PaperInput" layout horizontal center>
+<polymer-element name="html5-paper-input" extends="paper-input" constructor="Html5PaperInput">
   <template>
-    <style>
-      .required {
-        color: red;
-        font-weight: bold;
-      }
-    </style>
-    <paper-input-decorator flex id="decorator" label="{{label}}" floatingLabel="{{floatingLabel}}" value="{{value}}"
-                           disabled?="{{disabled}}" error="{{errorLabel}}">
-      <input id="input" is="core-input" type="{{type}}"
-             value="{{value}}" committedValue="{{committedValue}}"
-             on-change="{{changeAction}}" disabled?="{{disabled}}"
-             required?="{{required}}">
-    </paper-input-decorator>
+    <shadow></shadow>
   </template>
 
   <script>
 
     Polymer({
       publish: {
-        /**
-         * The label for this input. It normally appears as grey text inside
-         * the text input and disappears once the user enters text.
-         *
-         * @attribute label
-         * @type string
-         * @default ''
-         */
-        label: '',
-
-        /**
-         * If true, the label will "float" above the text input once the
-         * user enters text instead of disappearing.
-         *
-         * @attribute floatingLabel
-         * @type boolean
-         * @default false
-         */
-        floatingLabel: false,
-
-        /**
-         * Set to true to style the element as disabled.
-         *
-         * @attribute disabled
-         * @type boolean
-         * @default false
-         */
-        disabled: {value: false, reflect: true},
-
-        value: '',
-
-        committedValue: '',
-
         /**
          * Set the type of the input. (could be text,password,mail,url,number)
          *
@@ -150,11 +103,14 @@ Base on paper-input with HTML5 validation support
       },
       observe: {
         type: 'validateAttributes',
+        required: 'validateAttributes',
         pattern: 'validateAttributes',
         min: 'validateAttributes',
         max: 'validateAttributes',
         maxlength: 'validateAttributes'
       },
+      decorator:null,
+      input:null,
       /**
        * The `setMessage` method allow to set custom messages error
        *
@@ -202,21 +158,27 @@ Base on paper-input with HTML5 validation support
           this.type = 'text'
         }
         //Set the input attributes according to our element attribute
-        //No databinding because we don't want them if there are not set
+        this.input.setAttribute('type', this.type);
+
+        if (this.required) {
+          this.input.setAttribute('required', "");
+        }
         if (this.min) {
-          this.$.input.setAttribute('min', this.min);
+          this.input.setAttribute('min', this.min);
         }
         if (this.max) {
-          this.$.input.setAttribute('max', this.max);
+          this.input.setAttribute('max', this.max);
         }
         if (this.maxlength) {
-          this.$.input.setAttribute('maxlength', this.maxlength);
+          this.input.setAttribute('maxlength', this.maxlength);
         }
         if (this.pattern) {
-          this.$.input.setAttribute('pattern', this.pattern);
+          this.input.setAttribute('pattern', this.pattern);
         }
       },
       ready: function () {
+        this.decorator=this.$.decorator;
+        this.input=this.$.input;
       },
       /**
        * The `validate` method allow to check the value according to HTML5 validation attributes
@@ -237,15 +199,15 @@ Base on paper-input with HTML5 validation support
         if (this.maxlength > 0 && this.value.length > this.maxlength) {
           this.value = this.value.substr(0, this.maxlength);
           //Force validity (using custom error)
-          this.$.input.setCustomValidity(this.messages.tooLong);
+          this.input.setCustomValidity(this.messages.tooLong);
         }
       },
       validateMinMax: function () {
         //TODO check badInput error
       },
       setValidity: function () {
-        this.valid = this.$.input.validity.valid;
-        this.$.decorator.isInvalid = this.invalid = !this.valid;
+        this.valid = this.input.validity.valid;
+        this.decorator.isInvalid = this.invalid = !this.valid;
         if (this.valid) {
           this.fire('input-valid');
         }
@@ -254,7 +216,7 @@ Base on paper-input with HTML5 validation support
         }
       },
       setErrorMessage: function () {
-        var input = this.$.input;
+        var validity = this.input.validity;
         var errMsg = "";
         if (this.invalid) {
           if (this.error) {
@@ -262,22 +224,22 @@ Base on paper-input with HTML5 validation support
           }
           else{
             switch (true) {
-              case input.validity.valueMissing:
+              case validity.valueMissing:
                 errMsg = this.messages.valueMissing;
                 break;
-              case input.validity.customError:
+              case validity.customError:
                 errMsg = this.messages.tooLong;
                 break;
-              case input.validity.rangeUnderflow:
+              case validity.rangeUnderflow:
                 errMsg = this.messages.rangeUnderflow;
                 break;
-              case input.validity.rangeOverflow:
+              case validity.rangeOverflow:
                 errMsg = this.messages.rangeOverflow;
                 break;
-              case input.validity.patternMismatch:
+              case validity.patternMismatch:
                 errMsg = this.messages.patternMismatch;
                 break;
-              case input.validity.typeMismatch:
+              case validity.typeMismatch:
                 errMsg = this.messages.typeMismatch;
                 break;
               default :
@@ -285,10 +247,11 @@ Base on paper-input with HTML5 validation support
             }
           }
           this.errorLabel = errMsg;
+          this.decorator.setAttribute('error', this.errorLabel);
         }
       },
       valueChanged: function () {
-        this.$.decorator.updateLabelVisibility(this.value);
+        this.super();
         if (!this.commitvalidation) {
           this.validate();
         }
@@ -299,10 +262,7 @@ Base on paper-input with HTML5 validation support
         }
       },
       changeAction: function (e) {
-        if (!window.ShadowDOMPolyfill) {
-          // re-fire event that does not bubble across shadow roots
-          this.fire('change', null, this);
-        }
+        this.super(e);
         if (this.commitvalidation) {
           this.validate();
         }
