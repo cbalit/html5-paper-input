@@ -33,8 +33,8 @@ You can customize error messages by:
 ```html
  <html5-paper-input label="Required field" required error="You must enter a value"></html5-paper-input>
 ```
-* setting a custom error map in javascript:
- ```javascript
+* setting a custom error map  with the setMessage method:
+ ```
   var input = document.querySelector('html5-paper-input');
   input.setMessage({valueMissing:"You must enter a value"});
  ```
