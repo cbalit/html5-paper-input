@@ -14,15 +14,17 @@ Base on paper-input with HTML5 validation support
 @status alpha
 @homepage http://cbalit.github.io/html5-paper-input
 -->
-<polymer-element name="html5-paper-input" attributes="type label required maxlength min max pattern commitvalidation" constructor="Html5PaperInput" layout horizontal center>
+<polymer-element name="html5-paper-input" attributes="type label required maxlength min max pattern commitvalidation"
+                 constructor="Html5PaperInput" layout horizontal center>
   <template>
     <style>
-      .required{
+      .required {
         color: red;
         font-weight: bold;
       }
     </style>
-    <paper-input-decorator flex id="decorator" label="{{label}}" floatingLabel="{{floatingLabel}}" value="{{value}}" disabled?="{{disabled}}" error="{{error}}">
+    <paper-input-decorator flex id="decorator" label="{{label}}" floatingLabel="{{floatingLabel}}" value="{{value}}"
+                           disabled?="{{disabled}}" error="{{errorLabel}}">
       <input id="input" is="core-input" type="{{type}}"
              value="{{value}}" committedValue="{{committedValue}}"
              on-change="{{changeAction}}" disabled?="{{disabled}}"
@@ -74,7 +76,7 @@ Base on paper-input with HTML5 validation support
          * @type string
          * @default text
          */
-        type:'text',
+        type: 'text',
         /**
          * Set to true to style the required state
          *
@@ -82,7 +84,7 @@ Base on paper-input with HTML5 validation support
          * @type boolean
          * @default false
          */
-        required:false,
+        required: false,
         /**
          * Set the maxlength of the input
          *
@@ -90,7 +92,7 @@ Base on paper-input with HTML5 validation support
          * @type number
          * @default 0
          */
-        maxlength:0,
+        maxlength: 0,
         /**
          * Set the min value of the input
          *
@@ -98,7 +100,7 @@ Base on paper-input with HTML5 validation support
          * @type number
          * @default 0
          */
-        min:0,
+        min: 0,
         /**
          * Set the max value of the input
          *
@@ -106,7 +108,7 @@ Base on paper-input with HTML5 validation support
          * @type number
          * @default 0
          */
-        max:0,
+        max: 0,
         /**
          * Set the pattern of the input
          *
@@ -114,7 +116,7 @@ Base on paper-input with HTML5 validation support
          * @type string
          * @default null
          */
-        pattern:null,
+        pattern: null,
         /**
          * Set a global error message
          *
@@ -122,7 +124,7 @@ Base on paper-input with HTML5 validation support
          * @type string
          * @default null
          */
-        error:null,
+        error: null,
         /**
          * Set to true to validate on commit instead of change (ie. when the user
          * hits the "enter" key or blurs the input after changing the value)
@@ -131,27 +133,27 @@ Base on paper-input with HTML5 validation support
          * @type boolean
          * @default false
          */
-        commitvalidation:false
+        commitvalidation: false
       },
-      valid:true,
-      invalid:false,
-      tooLong:false,
-      messages:{
-        valueMissing:'Required field',
-        customError:'Custom error',
-        patternMismatch:'Pattern mismatch error',
-        typeMismatch:'Type mismatch error',
-        rangeOverflow:'Overflow error',
-        rangeUnderflow:'Underflow error',
-        tooLong:'Value too long',
-        default:'An error occured'
+      valid: true,
+      invalid: false,
+      errorLabel: "",
+      messages: {
+        valueMissing: 'Required field',
+        customError: 'Custom error',
+        patternMismatch: 'Pattern mismatch error',
+        typeMismatch: 'Type mismatch error',
+        rangeOverflow: 'Overflow error',
+        rangeUnderflow: 'Underflow error',
+        tooLong: 'Value too long',
+        default: 'An error occured'
       },
-      observe:{
-        type:'validateAttributes',
-        pattern:'validateAttributes',
-        min:'validateAttributes',
-        max:'validateAttributes',
-        maxlength:'validateAttributes'
+      observe: {
+        type: 'validateAttributes',
+        pattern: 'validateAttributes',
+        min: 'validateAttributes',
+        max: 'validateAttributes',
+        maxlength: 'validateAttributes'
       },
       /**
        * The `setMessage` method allow to set custom messages error
@@ -165,140 +167,143 @@ Base on paper-input with HTML5 validation support
        * @param {string} messages.tooLong: message for maxlength error
        * @param {string} messages.default: message for default error
        */
-      setMessage: function(messages) {
-        if(messages){
-          if(messages.valueMissing){
-            this.messages.valueMissing=messages.valueMissing;
+      setMessage: function (messages) {
+        if (messages) {
+          if (messages.valueMissing) {
+            this.messages.valueMissing = messages.valueMissing;
           }
-          if(messages.patternMismatch){
-            this.messages.patternMismatch=messages.patternMismatch;
+          if (messages.patternMismatch) {
+            this.messages.patternMismatch = messages.patternMismatch;
           }
-          if(messages.rangeUnderflow){
-            this.messages.rangeUnderflow=messages.rangeUnderflow;
+          if (messages.rangeUnderflow) {
+            this.messages.rangeUnderflow = messages.rangeUnderflow;
           }
-          if(messages.rangeOverflow){
-            this.messages.rangeOverflow=messages.rangeOverflow;
+          if (messages.rangeOverflow) {
+            this.messages.rangeOverflow = messages.rangeOverflow;
           }
-          if(messages.tooLong){
-            this.messages.tooLong=messages.tooLong;
+          if (messages.tooLong) {
+            this.messages.tooLong = messages.tooLong;
           }
-          if(messages.typeMismatch){
-            this.messages.typeMismatch=messages.typeMismatch;
+          if (messages.typeMismatch) {
+            this.messages.typeMismatch = messages.typeMismatch;
           }
-          if(messages.default){
-            this.messages.default=messages.default;
+          if (messages.default) {
+            this.messages.default = messages.default;
           }
         }
       },
-      isAuthorizedType: function() {
-        var okTypes=['text','number','password','mail','url'];
-        return (okTypes.indexOf(this.type)!=-1);
+      isAuthorizedType: function () {
+        var okTypes = ['text', 'number', 'password', 'mail', 'url'];
+        return (okTypes.indexOf(this.type) != -1);
       },
-      validateAttributes: function() {
+      validateAttributes: function () {
         //prevent from unwanted types
-        if(this.type != 'text' && !this.isAuthorizedType()) {
+        if (this.type != 'text' && !this.isAuthorizedType()) {
           this.type = 'text'
         }
         //Set the input attributes according to our element attribute
         //No databinding because we don't want them if there are not set
-        if(this.min){
-          this.$.input.setAttribute('min',this.min);
+        if (this.min) {
+          this.$.input.setAttribute('min', this.min);
         }
-        if(this.max){
-          this.$.input.setAttribute('max',this.max);
+        if (this.max) {
+          this.$.input.setAttribute('max', this.max);
         }
-        if(this.maxlength){
-          this.$.input.setAttribute('maxlength',this.maxlength);
+        if (this.maxlength) {
+          this.$.input.setAttribute('maxlength', this.maxlength);
         }
-        if(this.pattern){
-          this.$.input.setAttribute('pattern',this.pattern);
+        if (this.pattern) {
+          this.$.input.setAttribute('pattern', this.pattern);
         }
       },
-      ready: function() {
-
+      ready: function () {
       },
       /**
        * The `validate` method allow to check the value according to HTML5 validation attributes
        *
        * @method validate
        */
-      validate: function() {
-        if(this.maxlength>0){
+      validate: function () {
+        if (this.maxlength > 0) {
           this.validateLength();
         }
-        if(this.type=='number'){
+        if (this.type == 'number') {
           this.validateMinMax();
         }
         this.setValidity();
         this.setErrorMessage();
       },
-      validateLength: function() {
-        if(this.maxlength>0 && this.value.length>this.maxlength){
-          this.value=this.value.substr(0,this.maxlength);
+      validateLength: function () {
+        if (this.maxlength > 0 && this.value.length > this.maxlength) {
+          this.value = this.value.substr(0, this.maxlength);
           //Force validity (using custom error)
           this.$.input.setCustomValidity(this.messages.tooLong);
         }
       },
-      validateMinMax: function() {
-       //TODO check badInput error
+      validateMinMax: function () {
+        //TODO check badInput error
       },
-      setValidity: function() {
-        this.valid=this.$.input.validity.valid;
-        this.$.decorator.isInvalid = this.invalid= !this.valid;
-        if(this.valid){
+      setValidity: function () {
+        this.valid = this.$.input.validity.valid;
+        this.$.decorator.isInvalid = this.invalid = !this.valid;
+        if (this.valid) {
           this.fire('input-valid');
         }
-        else{
+        else {
           this.fire('input-invalid');
         }
       },
-      setErrorMessage: function() {
-        var decorator = this.$.decorator;
+      setErrorMessage: function () {
         var input = this.$.input;
-        var errMsg="";
-        if(this.invalid && !this.error){
-          switch (true){
-            case input.validity.valueMissing:
-              errMsg=this.messages.valueMissing;
-              break;
-            case input.validity.customError:
-              errMsg=this.messages.tooLong;
-              break;
-            case input.validity.rangeUnderflow:
-              errMsg=this.messages.rangeUnderflow;
-              break;
-            case input.validity.rangeOverflow:
-              errMsg=this.messages.rangeOverflow;
-              break;
-            case input.validity.patternMismatch:
-              errMsg=this.messages.patternMismatch;
-              break;
-            case input.validity.typeMismatch:
-              errMsg=this.messages.typeMismatch;
-              break;
-            default :
-              errMsg=this.messages.default;
+        var errMsg = "";
+        if (this.invalid) {
+          if (this.error) {
+            errMsg=this.error;
           }
-          this.error=errMsg;
+          else{
+            switch (true) {
+              case input.validity.valueMissing:
+                errMsg = this.messages.valueMissing;
+                break;
+              case input.validity.customError:
+                errMsg = this.messages.tooLong;
+                break;
+              case input.validity.rangeUnderflow:
+                errMsg = this.messages.rangeUnderflow;
+                break;
+              case input.validity.rangeOverflow:
+                errMsg = this.messages.rangeOverflow;
+                break;
+              case input.validity.patternMismatch:
+                errMsg = this.messages.patternMismatch;
+                break;
+              case input.validity.typeMismatch:
+                errMsg = this.messages.typeMismatch;
+                break;
+              default :
+                errMsg = this.messages.default;
+            }
+          }
+          this.errorLabel = errMsg;
         }
       },
-      valueChanged: function() {
+      valueChanged: function () {
         this.$.decorator.updateLabelVisibility(this.value);
-        if(!this.commitvalidation){
+        if (!this.commitvalidation) {
           this.validate();
         }
       },
-      labelChanged: function() {
-        if(this.required && this.label[this.label.length-1]!='*'){
-          this.label+=" *";
+      labelChanged: function () {
+        if (this.required && this.label[this.label.length - 1] != '*') {
+          this.label += " *";
         }
       },
-      changeAction: function(e) {
+      changeAction: function (e) {
         if (!window.ShadowDOMPolyfill) {
           // re-fire event that does not bubble across shadow roots
           this.fire('change', null, this);
         }
-        if(this.commitvalidation){
+        if (this.commitvalidation) {
           this.validate();
         }
       }

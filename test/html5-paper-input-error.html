@@ -54,7 +54,7 @@
 
     describe('Default error message',function () {
       it("should have no error by default", function () {
-        expect(input.error).to.be.empty;
+        expect(input.errorLabel).to.be.empty;
       });
 
 
@@ -63,7 +63,7 @@
         setValue('');
         flush(function () {
           input.validate();
-          expect(input.error).to.equals(input.messages.valueMissing);
+          expect(input.errorLabel).to.equals(input.messages.valueMissing);
           done();
         });
       });
@@ -74,19 +74,35 @@
         setValue('10');
         flush(function () {
           input.validate();
-          expect(input.error).to.equals(input.messages.rangeUnderflow);
+          expect(input.errorLabel).to.equals(input.messages.rangeUnderflow);
           done();
         });
       });
 
-      it("should have rangeOverflow error if input is invalid because of min constraint", function (done) {
+      it("should have rangeOverflow error if input is invalid because of max constraint", function (done) {
         input.setAttribute('type', 'number');
         input.setAttribute('max', '5');
         setValue('10');
         flush(function () {
           input.validate();
-          expect(input.error).to.equals(input.messages.rangeOverflow);
+          expect(input.errorLabel).to.equals(input.messages.rangeOverflow);
           done();
+        });
+      });
+
+      it("should have rangeOverflow error if input is invalid because of max constraint  after a rangeUnderflow error", function (done) {
+        input.setAttribute('type', 'number');
+        input.setAttribute('min', '5');
+        input.setAttribute('max', '10');
+        setValue('1');
+        flush(function () {
+          input.validate();
+          setValue('15');
+          flush(function () {
+            input.validate();
+            expect(input.errorLabel).to.equals(input.messages.rangeOverflow);
+            done();
+          });
         });
       });
 
@@ -95,7 +111,7 @@
         setValue('11');
         flush(function () {
           input.validate();
-          expect(input.error).to.equals(input.messages.patternMismatch);
+          expect(input.errorLabel).to.equals(input.messages.patternMismatch);
           done();
         });
       });
@@ -106,7 +122,7 @@
         setValue('');
         flush(function () {
           input.validate();
-          expect(input.error).to.equals(input.messages.valueMissing);
+          expect(input.errorLabel).to.equals(input.messages.valueMissing);
           done();
         });
       });
@@ -183,7 +199,7 @@
         setValue('');
         flush(function () {
           input.validate();
-          expect(input.error).to.equals(attrError);
+          expect(input.errorLabel).to.equals(attrError);
           done();
         });
       });
@@ -194,7 +210,7 @@
         setValue('10');
         flush(function () {
           input.validate();
-          expect(input.error).to.equals(attrError);
+          expect(input.errorLabel).to.equals(attrError);
           done();
         });
       });
@@ -205,7 +221,7 @@
         setValue('10');
         flush(function () {
           input.validate();
-          expect(input.error).to.equals(attrError);
+          expect(input.errorLabel).to.equals(attrError);
           done();
         });
       });
@@ -215,7 +231,7 @@
         setValue('11');
         flush(function () {
           input.validate();
-          expect(input.error).to.equals(attrError);
+          expect(input.errorLabel).to.equals(attrError);
           done();
         });
       });
@@ -226,7 +242,7 @@
         setValue('');
         flush(function () {
           input.validate();
-          expect(input.error).to.equals(attrError);
+          expect(input.errorLabel).to.equals(attrError);
           done();
         });
 
