@@ -116,6 +116,14 @@ Base on paper-input with HTML5 validation support
          */
         pattern:null,
         /**
+         * Set a global error message
+         *
+         * @attribute error
+         * @type string
+         * @default null
+         */
+        error:null,
+        /**
          * Set to true to validate on commit instead of change (ie. when the user
          * hits the "enter" key or blurs the input after changing the value)
          *
@@ -138,7 +146,6 @@ Base on paper-input with HTML5 validation support
         tooLong:'Value too long',
         default:'An error occured'
       },
-      error:"",
       observe:{
         type:'validateAttributes',
         pattern:'validateAttributes',
@@ -249,7 +256,7 @@ Base on paper-input with HTML5 validation support
         var decorator = this.$.decorator;
         var input = this.$.input;
         var errMsg="";
-        if(this.invalid){
+        if(this.invalid && !this.error){
           switch (true){
             case input.validity.valueMissing:
               errMsg=this.messages.valueMissing;
@@ -272,8 +279,8 @@ Base on paper-input with HTML5 validation support
             default :
               errMsg=this.messages.default;
           }
+          this.error=errMsg;
         }
-        this.error=errMsg;
       },
       valueChanged: function() {
         this.$.decorator.updateLabelVisibility(this.value);

@@ -52,133 +52,185 @@
       expect(input.invalid).to.be.false;
     }
 
-    it("should have no error by default", function () {
-      expect(input.error).to.be.empty;
-    });
+    describe('Default error message',function () {
+      it("should have no error by default", function () {
+        expect(input.error).to.be.empty;
+      });
 
-    it("should have no error if input became valid", function (done) {
-      input.setAttribute('required', 'true');
-      setValue('');
-      flush(function () {
-        input.validate();
-        expect(input.error).to.equals(input.messages.valueMissing);
-        setValue('aValue');
+
+      it("should have required error if input is invalid because of require constraint", function (done) {
+        input.setAttribute('required', 'true');
+        setValue('');
         flush(function () {
           input.validate();
-          expect(input.error).to.be.empty;
+          expect(input.error).to.equals(input.messages.valueMissing);
+          done();
+        });
+      });
+
+      it("should have rangeUnderflow error if input is invalid because of min constraint", function (done) {
+        input.setAttribute('type', 'number');
+        input.setAttribute('min', '15');
+        setValue('10');
+        flush(function () {
+          input.validate();
+          expect(input.error).to.equals(input.messages.rangeUnderflow);
+          done();
+        });
+      });
+
+      it("should have rangeOverflow error if input is invalid because of min constraint", function (done) {
+        input.setAttribute('type', 'number');
+        input.setAttribute('max', '5');
+        setValue('10');
+        flush(function () {
+          input.validate();
+          expect(input.error).to.equals(input.messages.rangeOverflow);
+          done();
+        });
+      });
+
+      it("should have patternMismatch error if input is invalid because of pattern constraint", function (done) {
+        input.setAttribute('pattern', '[0-9]{3}');
+        setValue('11');
+        flush(function () {
+          input.validate();
+          expect(input.error).to.equals(input.messages.patternMismatch);
+          done();
+        });
+      });
+
+      it("should have required error if input is invalid because of require AND pattern constraint", function (done) {
+        input.setAttribute('pattern', '[0-9]{3}');
+        input.setAttribute('required', 'true');
+        setValue('');
+        flush(function () {
+          input.validate();
+          expect(input.error).to.equals(input.messages.valueMissing);
           done();
         });
       });
     });
 
-    it("should have required error if input is invalid because of require constraint", function (done) {
-      input.setAttribute('required', 'true');
-      setValue('');
-      flush(function () {
-        input.validate();
-        expect(input.error).to.equals(input.messages.valueMissing);
-        done();
-      });
-    });
-
-    it("should have rangeUnderflow error if input is invalid because of min constraint", function (done) {
-      input.setAttribute('type', 'number');
-      input.setAttribute('min', '15');
-      setValue('10');
-      flush(function () {
-        input.validate();
-        expect(input.error).to.equals(input.messages.rangeUnderflow);
-        done();
-      });
-    });
-
-    it("should have rangeOverflow error if input is invalid because of min constraint", function (done) {
-      input.setAttribute('type', 'number');
-      input.setAttribute('max', '5');
-      setValue('10');
-      flush(function () {
-        input.validate();
-        expect(input.error).to.equals(input.messages.rangeOverflow);
-        done();
-      });
-    });
-
-    it("should have patternMismatch error if input is invalid because of pattern constraint", function (done) {
-      input.setAttribute('pattern', '[0-9]{3}');
-      setValue('11');
-      flush(function () {
-        input.validate();
-        expect(input.error).to.equals(input.messages.patternMismatch);
-        done();
-      });
-    });
-
-    it("should have required error if input is invalid because of require AND pattern constraint", function (done) {
-      input.setAttribute('pattern', '[0-9]{3}');
-      input.setAttribute('required', 'true');
-      setValue('');
-      flush(function () {
-        input.validate();
-        expect(input.error).to.equals(input.messages.valueMissing);
-        done();
-      });
-    });
 
     describe("When setting error message", function () {
 
-      it("should not change defaults if there is no messages", function (){
+      it("should not change defaults if there is no messages", function () {
         input.setMessage();
         expect(input.messages.valueMissing).to.equal("Required field");
       });
 
-      it("should change valueMissing message if it is passed", function (){
-        var customMessages={valueMissing:'custom value misssing'};
+      it("should change valueMissing message if it is passed", function () {
+        var customMessages = {valueMissing: 'custom value misssing'};
         input.setMessage(customMessages);
         expect(input.messages.valueMissing).to.equal(customMessages.valueMissing);
       });
 
-      it("should change patternMismatch message if it is passed", function (){
-        var customMessages={patternMismatch:'custom patternMismatch'};
+      it("should change patternMismatch message if it is passed", function () {
+        var customMessages = {patternMismatch: 'custom patternMismatch'};
         input.setMessage(customMessages);
         expect(input.messages.patternMismatch).to.equal(customMessages.patternMismatch);
       });
 
-      it("should change rangeUnderflow message if it is passed", function (){
-        var customMessages={rangeUnderflow:'custom rangeUnderflow'};
+      it("should change rangeUnderflow message if it is passed", function () {
+        var customMessages = {rangeUnderflow: 'custom rangeUnderflow'};
         input.setMessage(customMessages);
         expect(input.messages.rangeUnderflow).to.equal(customMessages.rangeUnderflow);
       });
 
-      it("should change rangeOverflow message if it is passed", function (){
-        var customMessages={rangeOverflow:'custom rangeOverflow'};
+      it("should change rangeOverflow message if it is passed", function () {
+        var customMessages = {rangeOverflow: 'custom rangeOverflow'};
         input.setMessage(customMessages);
         expect(input.messages.rangeOverflow).to.equal(customMessages.rangeOverflow);
       });
 
-      it("should change patternMismatch message if it is passed", function (){
-        var customMessages={patternMismatch:'custom patternMismatch'};
+      it("should change patternMismatch message if it is passed", function () {
+        var customMessages = {patternMismatch: 'custom patternMismatch'};
         input.setMessage(customMessages);
         expect(input.messages.patternMismatch).to.equal(customMessages.patternMismatch);
       });
 
-      it("should change tooLong message if it is passed", function (){
-        var customMessages={tooLong:'custom tooLong'};
+      it("should change tooLong message if it is passed", function () {
+        var customMessages = {tooLong: 'custom tooLong'};
         input.setMessage(customMessages);
         expect(input.messages.tooLong).to.equal(customMessages.tooLong);
       });
 
-      it("should change typeMismatch message if it is passed", function (){
-        var customMessages={typeMismatch:'custom default'};
+      it("should change typeMismatch message if it is passed", function () {
+        var customMessages = {typeMismatch: 'custom default'};
         input.setMessage(customMessages);
         expect(input.messages.typeMismatch).to.equal(customMessages.typeMismatch);
       });
 
-      it("should change default message if it is passed", function (){
-        var customMessages={default:'custom default'};
+      it("should change default message if it is passed", function () {
+        var customMessages = {default: 'custom default'};
         input.setMessage(customMessages);
         expect(input.messages.default).to.equal(customMessages.default);
       });
 
+    });
+
+    describe("When setting error attribute", function () {
+      var attrError;
+
+      beforeEach(function () {
+        attrError='global atttribute error';
+        input.setAttribute('error', attrError);
+      });
+
+      it("should use attribute error if input is invalid because of require constraint", function (done) {
+        input.setAttribute('required', 'true');
+        setValue('');
+        flush(function () {
+          input.validate();
+          expect(input.error).to.equals(attrError);
+          done();
+        });
+      });
+
+      it("should have rangeUnderflow error if input is invalid because of min constraint", function (done) {
+        input.setAttribute('type', 'number');
+        input.setAttribute('min', '15');
+        setValue('10');
+        flush(function () {
+          input.validate();
+          expect(input.error).to.equals(attrError);
+          done();
+        });
+      });
+
+      it("should have rangeOverflow error if input is invalid because of min constraint", function (done) {
+        input.setAttribute('type', 'number');
+        input.setAttribute('max', '5');
+        setValue('10');
+        flush(function () {
+          input.validate();
+          expect(input.error).to.equals(attrError);
+          done();
+        });
+      });
+
+      it("should have patternMismatch error if input is invalid because of pattern constraint", function (done) {
+        input.setAttribute('pattern', '[0-9]{3}');
+        setValue('11');
+        flush(function () {
+          input.validate();
+          expect(input.error).to.equals(attrError);
+          done();
+        });
+      });
+
+      it("should have required error if input is invalid because of require AND pattern constraint", function (done) {
+        input.setAttribute('pattern', '[0-9]{3}');
+        input.setAttribute('required', 'true');
+        setValue('');
+        flush(function () {
+          input.validate();
+          expect(input.error).to.equals(attrError);
+          done();
+        });
+
+      });
     });
 
   });
