@@ -178,7 +178,14 @@ Base on paper-input with HTML5 validation support
       },
       ready: function () {
         this.decorator=this.$.decorator;
-        this.input=this.$.input;
+        var input;
+        if(this.$.input){
+          input=this.$.input;
+        }
+        else{
+          input=this.decorator.getElementsByTagName('input')[0];
+        }
+        this.input=input;
       },
       /**
        * The `validate` method allow to check the value according to HTML5 validation attributes
